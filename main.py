@@ -2,24 +2,24 @@ import os
 import urllib.request
 
 def main(context):
-    context.log("=== Downloading via Python urllib ===")
+    context.log("=== Setting up 3x-ui in /tmp ===")
     
     tmp_dir = "/tmp"
     url = "https://github.com/mhsanaei/3x-ui/releases/latest/download/x-ui-linux-amd64.tar.gz"
     file_path = os.path.join(tmp_dir, "x-ui.tar.gz")
+    x_ui_dir = os.path.join(tmp_dir, "x-ui")
     
-    try:
-        # دانلود فایل با ماژول داخلی پایتون
+    # دانلود و استخراج در صورت عدم وجود
+    if not os.path.exists(x_ui_dir):
         urllib.request.urlretrieve(url, file_path)
-        context.log("Download completed successfully!")
-        
-        # استخراج فایل
         os.system(f"tar -zxvf {file_path} -C {tmp_dir}")
-        
-        files = os.listdir(tmp_dir)
-        context.log(f"Files in /tmp: {files}")
-        
-        return context.res.text(f"Success! Files: {files}")
-    except Exception as e:
-        context.error(f"Download failed: {str(e)}")
-        return context.res.text(f"Error: {str(e)}", statusCode=500)
+        os.system(f"rm -f {file_path}")
+    
+    # اعطای دسترسی اجرایی
+    os.system(f"chmod +x {x_ui_dir}/x-ui {x_ui_dir}/bin/xray-linux-* 2>/dev/null")
+    
+    # بررسی وجود فایل اجرایی
+    is_executable = os.access(f"{x_ui_dir}/x-ui", os.X_OK)
+    context.log(f"Is x-ui executable? {is_executable}")
+    
+    return context.res.text(f"Setup complete! x-ui is executable: {is_executable}")
