@@ -1,17 +1,19 @@
 import os
+import subprocess
 
 def main(context):
-    context.log("=== Debugging Directory Contents ===")
+    context.log("=== Testing Network & Download ===")
     
     tmp_dir = "/tmp"
+    url = "https://github.com/mhsanaei/3x-ui/releases/latest/download/x-ui-linux-amd64.tar.gz"
     
-    # دانلود و اکسترکت فایل
-    os.system(f"curl -sL https://github.com/mhsanaei/3x-ui/releases/latest/download/x-ui-linux-amd64.tar.gz -o {tmp_dir}/x-ui.tar.gz")
-    os.system(f"tar -zxvf {tmp_dir}/x-ui.tar.gz -C {tmp_dir}")
-    os.system(f"rm -f {tmp_dir}/x-ui.tar.gz")
+    # استفاده از subprocess برای گرفتن ارور دقیقِ curl
+    result = subprocess.run(["curl", "-sL", url, "-o", f"{tmp_dir}/test.tar.gz"], capture_output=True, text=True)
     
-    # لیست کردن تمام فایل‌ها و پوشه‌های داخل /tmp
+    context.log(f"Curl return code: {result.returncode}")
+    context.log(f"Curl stderr: {result.stderr}")
+    
     files = os.listdir(tmp_dir)
-    context.log(f"Files in /tmp: {files}")
+    context.log(f"Files in /tmp now: {files}")
     
-    return context.res.text(f"Contents: {str(files)}")
+    return context.res.text(f"Curl Code: {result.returncode}, Files: {files}")
